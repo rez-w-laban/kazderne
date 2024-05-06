@@ -46,8 +46,8 @@ class AuthController extends Controller
         }
     }
 
-    
-  public function register(Request $request)
+
+    public function register(Request $request)
     {
         try {
             $request->validate([
@@ -66,6 +66,7 @@ class AuthController extends Controller
                 'role_id' => 2 ,
                 //'profile_picture' => $request->file('profile_picture'),
             ]);
+            if($request->profile_picture){
             $profile_picture = $request->file('profile_picture');
             $file_name = uniqid('media_') . '.' . $profile_picture->getClientOriginalExtension();
             $directory = "public/user/$user->id/profile";
@@ -88,6 +89,15 @@ class AuthController extends Controller
                 'message' => 'User created successfully',
                 'user' => $user,
             ]);
+        } else{
+                
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User created successfully',
+                'user' => $user,
+            ]);
+        }
+            
         } catch (Exception $e) {
 
             $existingUser = User::where('email', $request->email)->first();
@@ -103,6 +113,7 @@ class AuthController extends Controller
             ], 500);
         }
     }
+
 
 
     public function logout()

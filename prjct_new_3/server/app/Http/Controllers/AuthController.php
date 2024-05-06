@@ -46,22 +46,41 @@ class AuthController extends Controller
         }
     }
 
-    public function register(Request $request)
+    
+  public function register(Request $request)
     {
         try {
             $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255',
                 'password' => 'required|string|min:6',
-                'profile_picture' => 'nullable',
+                'profile_picture' => 'nullable|mimes:jpeg,jpg,png|max:2048',
             ]);
+            
+      
 
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role_id' => 2 ,
-                'profile_picture' => $request->profile_picture,
+                //'profile_picture' => $request->file('profile_picture'),
+            ]);
+            $profile_picture = $request->file('profile_picture');
+            $file_name = uniqid('media_') . '.' . $profile_picture->getClientOriginalExtension();
+            $directory = "public/user/$user->id/profile";
+        
+        
+            if (!Storage::disk('local')->exists($directory)) {
+            Storage::disk('local')->makeDirectory($directory, 0755, true); 
+            }
+        
+        
+            $path = Storage::putFileAs($directory, $profile_picture, $file_name);
+            $full_path="C:/xampp/htdocs/prjct_new_3/server/storage/app/$directory/$file_name";
+
+            $user->update([
+                'profile_picture'=>$full_path,
             ]);
 
             return response()->json([

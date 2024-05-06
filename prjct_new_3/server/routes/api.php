@@ -122,5 +122,16 @@ Route::get('media/{city_id}/{filename}', function ($city_id, $filename) {
         return response()->json(['error' => 'File not found'], 404);
     }
   });
+//user profile_picture
+  Route::get('profile_picture/{user_id}/{file_name}', function ($user_id, $file_name) {
+    $path = storage_path('app/public/user/' . $user_id . '/profile/'. $file_name);
+  
+    if (File::exists($path)) {
+        return response()->file($path);
+    } else {
+        return response()->json(['error' => 'File not found'], 404);
+    }
+  });
+  
   
   

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\ActivityTypeController;
 use App\Http\Controllers\ActivityPictureController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
@@ -34,6 +35,8 @@ Route::group(["middleware" => "auth:api", "prefix" => "user"], function () {
     Route::post("logout", [AuthController::class, "logout"]);
     Route::get("getFollowings", [FollowController::class, "getFollowings"]);
     Route::post("follow", [ActivityController::class, "handleFollow"]);
+    Route::get("profile", [AuthController::class, "getMyprofile"]);
+
 
     //like
     Route::post("like", [LikeController::class, "handleLike"]);
@@ -93,6 +96,10 @@ Route::group(["middleware" => "auth:api", "prefix" => "user"], function () {
         Route::get("getAllUsers/", [AdminController::class, "getAllUsers"]);
         Route::post("userPrivilege/{user_id}", [AdminController::class, "userPrivilege"]);
         Route::delete("deleteUser/{user_id}", [AdminController::class, "deleteUser"]);
+        
+        //activity_types
+        Route::post("addActivityType", [ActivityTypeController::class, "addActivityType"]);
+        Route::post("editActivityType/{activity_type_id}", [ActivityTypeController::class, "editActivityType"]);
 
 
         

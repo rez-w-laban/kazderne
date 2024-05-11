@@ -58,36 +58,10 @@ Route::group(["middleware" => "auth:api", "prefix" => "user"], function () {
     Route::get("getUserComments", [CommentController::class, "getUserComments"]);
     Route::get("getActivityComments/{activity_id}", [CommentController::class, "getActivityComments"]);
 
-    //activity
-    Route::get("getCityActivities/{city_id}", [ActivityController::class, "getCityActivities"]);
-    Route::get("getUserActivities", [ActivityController::class, "getUserActivities"]);
-    Route::get("searchActivities", [ActivityController::class, "searchActivities"]);
-    Route::get("searchUsers", [AdminController::class, "searchUsers"]);
-
-
 
     //admin group
     Route::group(["prefix" => "admin", "middleware" => "admin"], function () {
-        //city
-        Route::post("addCity", [CityController::class, "addCity"]);
-        Route::delete("deleteCity/{city_id}", [CityController::class, "deleteCity"]);
-        Route::post("editCity/{city_id}", [CityController::class, "editCity"]);
-        Route::post("getCity/{city_id}", [CityController::class, "getCity"]);
-        Route::get("getAllCities/", [CityController::class, "getAllCities"]);
-        Route::post("addCityMedia", [CityPictureController::class, "addCityMedia"]);
-
-
-
-        //activity
-        Route::post("addActivity", [ActivityController::class, "addActivity"]);
-        Route::post("editActivity/{activity_id}", [ActivityController::class, "editActivity"]);
-        Route::delete("deleteActivity/{activity_id}", [ActivityController::class, "deleteActivity"]);
-        Route::post("addActivityMedia", [ActivityPictureController::class, "addActivityMedia"]);
-        
-
-        Route::get("getActivity/{activity_id}", [ActivityController::class, "getActivity"]);
-
-        Route::get("getAllActivities", [ActivityController::class, "getAllActivities"]);
+      
         
         //comment
         
@@ -105,6 +79,34 @@ Route::group(["middleware" => "auth:api", "prefix" => "user"], function () {
         
     });
 });
+        
+    //activity
+    Route::get("getCityActivities/{city_id}", [ActivityController::class, "getCityActivities"]);
+    Route::get("getUserActivities", [ActivityController::class, "getUserActivities"]);
+    Route::get("searchActivities", [ActivityController::class, "searchActivities"]);
+    Route::get("searchUsers", [AdminController::class, "searchUsers"]);
+
+
+
+        //city
+        Route::post("addCity", [CityController::class, "addCity"]);
+        Route::delete("deleteCity/{city_id}", [CityController::class, "deleteCity"]);
+        Route::post("editCity/{city_id}", [CityController::class, "editCity"]);
+        Route::post("getCity/{city_id}", [CityController::class, "getCity"]);
+        Route::get("getAllCities/", [CityController::class, "getAllCities"]);
+        Route::post("addCityMedia", [CityPictureController::class, "addCityMedia"]);
+
+
+
+        //activity
+        Route::post("addActivity", [ActivityController::class, "addActivity"]);
+        Route::post("editActivity/{activity_id}", [ActivityController::class, "editActivity"]);
+        Route::delete("deleteActivity/{activity_id}", [ActivityController::class, "deleteActivity"]);
+        Route::post("addActivityMedia", [ActivityPictureController::class, "addActivityMedia"]);
+        Route::get("getActivity/{activity_id}", [ActivityController::class, "getActivity"]);
+        Route::get("getAllActivities", [ActivityController::class, "getAllActivities"]);
+
+
 Route::post("login", [AuthController::class, "login"]);
 Route::post("register", [AuthController::class, "register"]);
 

@@ -36,6 +36,7 @@ return new class extends Migration
         Schema::create('cities', function (Blueprint $table) {
             $table->id();
             $table->string('city_name');
+            $table->string('description')->nullable();
             $table->string('location')->nullable();
             $table->string('picture')->nullable();
             $table->timestamps();

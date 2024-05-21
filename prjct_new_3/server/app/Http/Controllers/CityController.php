@@ -65,6 +65,7 @@ class CityController extends Controller
 
         $city = City::create([
             'city_name' => $request->city_name,
+            'description'=>$request->description,
             'location' => $request->location,
             
 
@@ -103,6 +104,7 @@ class CityController extends Controller
 
             $city = City::create([
                 'city_name' => $request->city_name,
+                'description'=>$request->description,
                 'location' => $request->location,
                 'picture' => $request->picture,
 
@@ -152,6 +154,7 @@ class CityController extends Controller
 
             $city->update([
                 'city_name' => $request->city_name,
+                 'description'=>$request->description,
                 'location' => $request->location,
                 'picture' => $request->picture,
             ]);

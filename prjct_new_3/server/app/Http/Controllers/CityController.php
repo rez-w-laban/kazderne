@@ -43,82 +43,83 @@ class CityController extends Controller
                     'message' => 'City exists',
                 ]);
             }
-            if($request->picture){
-            
-            
-        $messages = [
-            'required' => 'Please select a file to upload.',
-            'mimes' => 'The uploaded file is not a supported format.',
-            'max' => 'The file size exceeds the maximum limit of 2 mb.',
-        ];
-    
-        $validator = Validator::make($request->all(), [
-            'picture' => 'required|mimes:jpeg,jpg,png|max:2048',]
-            , $messages);
-            
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
-
-        $picture = $request->file('picture');
-        $file_name = uniqid('picture_') . '.' . $picture->getClientOriginalExtension();
-
-        $city = City::create([
-            'city_name' => $request->city_name,
-            'description'=>$request->description,
-            'location' => $request->location,
-            
-
-        ]);
-
-        $directory = "public/city/$city->id/profile";
-    
-    
-        if (!Storage::disk('local')->exists($directory)) {
-        Storage::disk('local')->makeDirectory($directory, 0755, true); 
-        }
-    
-    
-        $path = Storage::putFileAs($directory, $picture, $file_name);
-        $full_path="C:/xampp/htdocs/prjct_new_3/server/storage/app/$directory/$file_name";
-        
-        $city->update([
-            'picture'=>$full_path,
-        ]);
+            if ($request->picture) {
 
 
-        return response()->json([
+                $messages = [
+                    'required' => 'Please select a file to upload.',
+                    'mimes' => 'The uploaded file is not a supported format.',
+                    'max' => 'The file size exceeds the maximum limit of 2 mb.',
+                ];
 
-            'status' => 'success',
-            'message' => 'city added successfully',
-            'city' => $city,
+                $validator = Validator::make(
+                    $request->all(),
+                    [
+                        'picture' => 'required|mimes:jpeg,jpg,png|max:2048',
+                    ],
+                    $messages
+                );
 
-        ]);
+                if ($validator->fails()) {
+                    return response()->json($validator->errors(), 400);
+                }
 
-            
-            }else{
+                $picture = $request->file('picture');
+                $file_name = uniqid('picture_') . '.' . $picture->getClientOriginalExtension();
+
+                $city = City::create([
+                    'city_name' => $request->city_name,
+                    'description' => $request->description,
+                    'location' => $request->location,
+
+
+                ]);
+
+                $directory = "public/city/$city->id/profile";
+
+
+                if (!Storage::disk('local')->exists($directory)) {
+                    Storage::disk('local')->makeDirectory($directory, 0755, true);
+                }
+
+
+                $path = Storage::putFileAs($directory, $picture, $file_name);
+                //$full_path = "C:/xampp/htdocs/prjct_new_3/server/storage/app/$directory/$file_name";
+
+                $city->update([
+                    'picture' => $file_name,
+                ]);
+
+
+                return response()->json([
+
+                    'status' => 'success',
+                    'message' => 'city added successfully',
+                    'city' => $city,
+
+                ]);
+            } else {
 
 
 
 
 
-            $city = City::create([
-                'city_name' => $request->city_name,
-                'description'=>$request->description,
-                'location' => $request->location,
-                'picture' => $request->picture,
+                $city = City::create([
+                    'city_name' => $request->city_name,
+                    'description' => $request->description,
+                    'location' => $request->location,
+                    'picture' => $request->picture,
 
-            ]);
+                ]);
 
-            return response()->json([
+                return response()->json([
 
-                'status' => 'success',
-                'message' => 'city added successfully',
-                'city' => $city,
+                    'status' => 'success',
+                    'message' => 'city added successfully',
+                    'city' => $city,
 
-            ]);
-
-        }
+                ]);
+            }
         } catch (Exception $ex) {
             return response()->json([
 
@@ -129,7 +130,7 @@ class CityController extends Controller
         }
     }
 
-    public function editCity(Request $request, $city_id) //not in routes
+    public function editCity(Request $request, $city_id)
     {
         try {
             $user = Auth::user();
@@ -145,19 +146,65 @@ class CityController extends Controller
             }
 
 
-            if (!$request->filled('city_name') || !$request->filled('location')) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Please fill in required fields!',
+            // if (!$request->filled('city_name') || !$request->filled('location')) {
+            //     return response()->json([
+            //         'status' => 'error',
+            //         'message' => 'Please fill in required fields!',
+            //     ]);
+            // }
+
+            $city->update([
+                'city_name' => $request->input('city_name', $city->city_name),
+                'description' => $request->input('description', $city->description),
+                'location' => $request->input('location', $city->location),
+
+            ]);
+
+            if ($request->picture) {
+
+
+                $messages = [
+                    'required' => 'Please select a file to upload.',
+                    'mimes' => 'The uploaded file is not a supported format.',
+                    'max' => 'The file size exceeds the maximum limit of 2 mb.',
+                ];
+
+                $validator = Validator::make(
+                    $request->all(),
+                    [
+                        'picture' => 'required|mimes:jpeg,jpg,png|max:2048',
+                    ],
+                    $messages
+                );
+
+                if ($validator->fails()) {
+                    return response()->json($validator->errors(), 400);
+                }
+
+                $picture = $request->file('picture');
+                $file_name = uniqid('picture_') . '.' . $picture->getClientOriginalExtension();
+
+                $directory = "public/city/$city->id/profile";
+
+                //$full_path = "C:/xampp/htdocs/prjct_new_3/server/storage/app/$directory/$file_name";
+
+                $path = Storage::putFileAs($directory, $picture, $file_name);
+
+
+                if (Storage::exists("$directory/$city->picture")) {
+                    Storage::delete("$directory/$city->picture");
+                }
+
+
+
+
+
+                $city->update([
+                    'picture' => $file_name,
                 ]);
             }
 
-            $city->update([
-                'city_name' => $request->city_name,
-                 'description'=>$request->description,
-                'location' => $request->location,
-                'picture' => $request->picture,
-            ]);
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'successfully edited city',
@@ -170,7 +217,7 @@ class CityController extends Controller
             ]);
         }
     }
-    public function deleteCity($city_id) 
+    public function deleteCity($city_id)
     {
         try {
 
@@ -184,6 +231,10 @@ class CityController extends Controller
 
                 ]);
             }
+            if (Storage::exists("public/city/$city->id")) {
+                Storage::deleteDirectory("public/city/$city->id");
+            }
+
             $city->delete();
             return response()->json([
                 'status' => 'success',
@@ -196,7 +247,7 @@ class CityController extends Controller
             ]);
         }
     }
-    public function getCity($city_id) 
+    public function getCity($city_id)
     {
         try {
             $user = Auth::user();
@@ -224,40 +275,31 @@ class CityController extends Controller
             ]);
         }
     }
-    
 
-    public function getAllCities(){
-        try{
+
+    public function getAllCities()
+    {
+        try {
 
             $city = City::with("activity")->get();
-            
-            return response()->json([
-
-                'status'=>'success',
-                'message'=>'retrieved cities successfully',
-                'cities'=>$city,
-
-            ]); 
-
-
-
-
-
-
-        }catch(Exception $ex){
 
             return response()->json([
 
-                'status'=>'error',
-                'message'=>'failed to retrieve cities ',
-                
+                'status' => 'success',
+                'message' => 'retrieved cities successfully',
+                'cities' => $city,
 
-            ]); 
+            ]);
+        } catch (Exception $ex) {
+
+            return response()->json([
+
+                'status' => 'error',
+                'message' => 'failed to retrieve cities ',
 
 
-
+            ]);
         }
-
     }
     //getCityActivities in ActivityController
 }

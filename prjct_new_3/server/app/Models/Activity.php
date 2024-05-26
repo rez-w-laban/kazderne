@@ -9,7 +9,7 @@ class Activity extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'activity_name', 'description', 'price', 'picture', 'likes_count', 'comments_count',
+        'activity_name', 'description','contact', 'price', 'picture', 'likes_count', 'comments_count',
         'rate_count', 'rate_sum', 'average_rate', 'location', 'activity_type_id', 'city_id', 'user_id'
     ];
 

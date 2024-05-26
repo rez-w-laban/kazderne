@@ -2,56 +2,68 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Activity;
 use App\Models\Comment;
+use App\Models\Notification;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
+
     public function handleComment(Request $request)
     {
         try {
             $user = Auth::user();
 
-
-            if ($request->is_reply == 1) {
-
-
+            if ($request->is_reply && $request->is_reply == 1) {
                 $reply = Comment::create([
-                    'content' => $request->content,
-                    'is_reply' => 1,
-                    'user_id' => $user->id,
-                    'activity_id' => $request->activity_id,
-                    'comment_id' => $request->comment_id,
-
+                    "content" => $request->content,
+                    "is_reply" => 1,
+                    "user_id" => $user->id,
+                    "activity_id" => $request->activity_id,
+                    "comment_id" => $request->comment_id,
                 ]);
+
+                $receiver = Comment::findOrFail($request->comment_id);
+                $notification = Notification::create([
+                    "notification" => "$user->name replied to you",
+                    "receiver_id" => $receiver->user_id,
+                    "activity_id" => $request->activity_id,
+                ]);
+
                 return response()->json([
-                    'status' => 'success',
-                    'message' => 'User replied successfully',
-                    'reply' => $reply,
+                    "status" => "success",
+                    "message" => "User replied successfully",
+                    "reply" => $reply,
                 ]);
             }
+
             $comment = Comment::create([
-                'content' => $request->content,
-                'is_reply' => 0,
-                'user_id' => $user->id,
-                'activity_id' => $request->activity_id,
-                'comment_id' => $request->comment_id,
-
-
+                "content" => $request->content,
+                "is_reply" => 0,
+                "user_id" => $user->id,
+                "activity_id" => $request->activity_id,
             ]);
+
+            $receiver = Activity::findOrFail($request->activity_id);
+            $notification = Notification::create([
+                "notification" => "$user->name commented on your activity to you",
+                "receiver_id" => $receiver->user_id,
+                "activity_id" => $request->activity_id,
+            ]);
+
             return response()->json([
-                'status' => 'success',
-                'message' => 'User commented successfully',
-                'comment' => $comment,
+                "status" => "success",
+                "message" => "User commented successfully",
+                "comment" => $comment,
             ]);
         } catch (Exception $ex) {
-
-
             return response()->json([
-                'status' => 'error',
-                'message' => $ex,
+                "status" => "error",
+                "message" => "there was an error while trying to comment ; error : $ex",
             ]);
         }
     }
@@ -64,26 +76,26 @@ class CommentController extends Controller
         if ($user->id !== $comment->user_id) {
 
             return response()->json([
-                'status' => 'error',
-                'message' => 'only user can edit his comment',
+                "status" => "error",
+                "message" => "only user can edit his comment",
             ]);
         }
 
-        if (!$request->filled('content')) {
+        if (!$request->filled("content")) {
             return response()->json([
-                'status' => 'error',
-                'message' => 'Please fill in required fields!',
+                "status" => "error",
+                "message" => "Please fill in required fields!",
             ]);
         }
         $comment->update([
-            'content' => $request->input('content'),
+            "content" => $request->input("content"),
         ]);
 
 
         return response()->json([
-            'status' => 'Success',
-            'message' => 'activity edited successfully',
-            'comment' => $comment,
+            "status" => "Success",
+            "message" => "activity edited successfully",
+            "comment" => $comment,
         ]);
     }
 
@@ -98,8 +110,8 @@ class CommentController extends Controller
 
                 return response()->json([
 
-                    'status' => 'error',
-                    'message' => 'only owner can delete comment',
+                    "status" => "error",
+                    "message" => "only owner can delete comment",
 
 
                 ]);
@@ -109,16 +121,16 @@ class CommentController extends Controller
 
             return response()->json([
 
-                'status' => 'success',
-                'message' => 'comment successfully deleted',
+                "status" => "success",
+                "message" => "comment successfully deleted",
 
 
             ]);
         } catch (Exception $ex) {
             return response()->json([
 
-                'status' => 'error',
-                'message' => 'There was an error while trying to delete comment',
+                "status" => "error",
+                "message" => "There was an error while trying to delete comment",
 
 
             ]);
@@ -129,81 +141,80 @@ class CommentController extends Controller
     public function getCommentReplies($replying_to_id)
     {
         try {
-            $replies = Comment::where('comment_id', $replying_to_id)->get();
+            $replies = Comment::where("comment_id", $replying_to_id)->get();
             return response()->json([
-                'status' => 'success',
-                'message' => 'retrieved replies successfully',
-                'comment_replies' => $replies,
+                "status" => "success",
+                "message" => "retrieved replies successfully",
+                "comment_replies" => $replies,
 
             ]);
         } catch (Exception $ex) {
             return response()->json([
-                'status' => 'error',
-                'message' => 'failed to retrieve replies',
+                "status" => "error",
+                "message" => "failed to retrieve replies",
             ]);
         }
     }
 
 
-    public function getComment($comment_id){
-        try{
-            $comment=Comment::findorfail($comment_id);
+    public function getComment($comment_id)
+    {
+        try {
+            $comment = Comment::findorfail($comment_id);
             return response()->json([
-                'status' => 'success',
-                'message' => 'retrieved comment successfully',
-                'comment' => $comment,
+                "status" => "success",
+                "message" => "retrieved comment successfully",
+                "comment" => $comment,
 
             ]);
-        }catch(Exception $ex){
+        } catch (Exception $ex) {
             return response()->json([
-                'status' => 'error',
-                'message' => 'failed to retrieve comment',
+                "status" => "error",
+                "message" => "failed to retrieve comment",
             ]);
-
-
         }
     }
 
 
 
-    public function getUserComments() 
+    public function getUserComments()
     {
         try {
 
             $user = Auth::user();
-            $comments = Comment::where('user_id', $user->id)->get();
+            $comments = Comment::where("user_id", $user->id)->get();
             return response()->json([
-                'status' => 'success',
-                'message' => 'retrieved replies successfully',
-                'user_comments' => $comments,
+                "status" => "success",
+                "message" => "retrieved replies successfully",
+                "user_comments" => $comments,
 
             ]);
         } catch (Exception $ex) {
             return response()->json([
 
-                'status' => 'error',
-                'message' => 'There was an error while trying to get user comments',
+                "status" => "error",
+                "message" => "There was an error while trying to get user comments",
 
 
             ]);
         }
     }
 
-    public function getActivityComments($activity_id) 
+    public function getActivityComments($activity_id)
     {
         try {
-            $comments = Comment::with('comment')->where('activity_id', $activity_id)->get();
+            $comments = Comment::with("comment")->where("activity_id", $activity_id)->get();
             return response()->json([
-                'status' => 'success',
-                'message' => 'retrieved activity comments successfully',
-                'activity_comments' => $comments,
+                "status" => "success",
+                "message" => "retrieved activity comments successfully",
+                "activity_comments" => $comments,
             ]);
         } catch (Exception $ex) {
 
             return response()->json([
 
-                'status' => 'error',
-                'message' => 'There was an error while trying to get activity comments',
+                "status" => "error",
+                "message" => "There was an error while trying to get activity comments",
 
 
             ]);

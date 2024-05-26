@@ -34,10 +34,12 @@ class AdminController extends Controller
     public function getUser($user_id) 
     {
         try {
-            $user = User::findorfail($user_id);
+            $user = User::with('activity')->findorfail($user_id);
+            $count =User::withCount('activity')->findorfail($user_id);
             return response()->json([
                 'status' => 'success',
                 'user' => $user,
+                'count'=>$count,
 
             ]);
         } catch (Exception $ex) {

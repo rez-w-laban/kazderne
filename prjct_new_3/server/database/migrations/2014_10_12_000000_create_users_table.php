@@ -44,7 +44,7 @@ return new class extends Migration
 
         Schema::create('city_pictures', function (Blueprint $table) {
             $table->id();
-            $table->string('media')->nullable();
+            $table->string('picture')->nullable();
             $table->unsignedBigInteger('city_id');
             $table->foreign('city_id')->references('id')->on('cities')->onDelete('cascade');
             $table->timestamps();
@@ -61,7 +61,8 @@ return new class extends Migration
             $table->id();
             $table->string('activity_name');
             $table->string('description')->nullable();
-            $table->unsignedBigInteger('price')->nullable();
+            $table->string('price')->nullable();
+            $table->string('contact')->nullable();
             $table->string('picture')->nullable();
             $table->unsignedBigInteger('likes_count');
             $table->unsignedBigInteger('comments_count');
@@ -80,7 +81,7 @@ return new class extends Migration
 
         Schema::create('activity_pictures', function (Blueprint $table) {
             $table->id();
-            $table->string('media')->nullable();
+            $table->string('activity_pictures')->nullable();
             $table->unsignedBigInteger('activity_id');
             $table->foreign('activity_id')->references('id')->on('activities')->onDelete('cascade');
             $table->timestamps();
@@ -100,7 +101,7 @@ return new class extends Migration
             $table->string('content');
             $table->unsignedBigInteger('activity_id');
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('comment_id');
+            $table->unsignedBigInteger('comment_id')->nullable();
             $table->boolean('is_reply');
             $table->foreign('comment_id')->references('id')->on('comments')->nullable()->onDelete('cascade');
             $table->foreign('activity_id')->references('id')->on('activities')->onDelete('cascade');
@@ -128,12 +129,34 @@ return new class extends Migration
 
         Schema::create('followings', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('following_id');
             $table->unsignedBigInteger('follower_id');
-            $table->foreign('following_id')->references('id')->on('users')->onDelete('cascade');
+            $table->unsignedBigInteger('followed_id');
             $table->foreign('follower_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('followed_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
+
+        Schema::create('notifications', function (Blueprint $table) {
+            $table->id();
+            $table->string('notification');
+            $table->unsignedBigInteger('receiver_id');
+            $table->unsignedBigInteger('activity_id')->nullable();
+            $table->foreign('receiver_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('activity_id')->references('id')->on('activities')->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::create('chats', function (Blueprint $table) {
+            $table->id();
+            $table->string('message');
+            $table->unsignedBigInteger('sender_id');
+            $table->unsignedBigInteger('receiver_id');
+            $table->foreign('sender_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('receiver_id')->references('id')->on('users')->onDelete('cascade');
+            $table->timestamps();
+        });
+    
+    
     }
 
 
@@ -157,5 +180,7 @@ return new class extends Migration
         Schema::dropIfExists('ratings');
         Schema::dropIfExists('bookmarks');
         Schema::dropIfExists('followings');
+        Schema::dropIfExists('notifications');
+        Schema::dropIfExists('chats');
     }
 };

@@ -3,19 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Models\Following;
+use App\Models\Notification;
+use App\Models\User;
 use FFI\Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class FollowController extends Controller
 {
-   
+
     public function handleFollow(Request $request)
     {
         try {
             $user = Auth::user();
-            $to_follow = $request->following_id;
-            $existing = Following::where('following_id', $to_follow)
+            $followed = $request->followed_id;
+            if ($user->id == $followed) {
+                return response()->json([
+                    "status" => "failed",
+                    "message" => "you can't follow yourself",
+                ]);
+            }
+            $existing = Following::where('followed_id', $followed)
                 ->where('follower_id', $user->id)
                 ->first();
 
@@ -29,7 +37,14 @@ class FollowController extends Controller
 
             $follow = Following::create([
                 'follower_id' => $user->id,
-                'following_id' => $to_follow,
+                'followed_id' => $followed,
+            ]);
+
+            $notification = Notification::create([
+                "notification" => "$user->name followed you",
+                "receiver_id" => $followed,
+
+
             ]);
             return response()->json([
                 'status' => 'success',
@@ -46,22 +61,81 @@ class FollowController extends Controller
     {
         try {
             $user = Auth::user();
-            $followings = Following::with('user')->where('follower_id', $user->id)->get();
+            $followings = User::with('follower')->where('id', $user->id)->get();
+            $count = Following::where('follower_id', $user->id)->count();
             return response()->json([
                 'followings' => $followings,
+                "count" => $count,
                 'status' => 'success',
                 'message' => 'Followings retrieved successfully',
             ]);
         } catch (Exception $ex) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'An error occurred when retrieving followings',
+                'message' => 'An error occurred when retrieving followers',
             ]);
         }
+    }
+
+    public function getFollowers(Request $request)
+    {
+
+        try {
+            $user = Auth::user();
+            $followers = User::with('followed')->where('id', $user->id)->get();
+            $count = Following::where('followed_id', $user->id)->count();
+            return response()->json([
+                'followers' => $followers,
+                "count" => $count,
+                'status' => 'success',
+                'message' => 'Followers retrieved successfully',
+            ]);
+        } catch (Exception $ex) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred when retrieving followers',
+            ]);
+        }
+    }
     
-    
-     }
+    public function getUserFollowings(Request $request,$user_id)
+    {
+        try {
+           
+            $followings = User::with('follower')->where('id', $user_id)->get();
+            $count = Following::where('follower_id', $user_id)->count();
+            return response()->json([
+                'followings' => $followings,
+                "count" => $count,
+                'status' => 'success',
+                'message' => 'Followings retrieved successfully',
+            ]);
+        } catch (Exception $ex) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred when retrieving followers',
+            ]);
+        }
+    }
 
+    public function getUserFollowers(Request $request,$user_id)
+    {
 
-
+        try {
+           
+            $followers = User::with('followed')->where('id', $user_id)->get();
+            $count = Following::where('followed_id', $user_id)->count();
+            return response()->json([
+                'followers' => $followers,
+                "count" => $count,
+                'status' => 'success',
+                'message' => 'Followers retrieved successfully',
+            ]);
+        } catch (Exception $ex) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred when retrieving followers',
+            ]);
+        }
+    }
 }
